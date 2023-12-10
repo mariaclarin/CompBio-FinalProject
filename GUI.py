@@ -116,27 +116,6 @@ def landingPage(root):
 
 
 
-def export_to_txt(table, filename):
-    data = []
-
-    # Extract data from the table
-    for row_id in table.get_children():
-        data.append(table.item(row_id)['values'])
-
-    # Convert data to a DataFrame
-    df = pd.DataFrame(data, columns=['Genetic Markers', 'Child', 'Alleged Father'])
-
-    # Export DataFrame to a .txt file using tabulate
-    with open(filename, 'w') as file:
-        file.write(tabulate(df, headers='keys', tablefmt='pretty'))
-
-def export_button_click(table):
-    file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
-
-    if file_path:
-        export_to_txt(table, file_path)
-
-
 def validator():
     fatherdna = fatherinput.get("1.0", tk.END)
     childdna = childinput.get("1.0", tk.END)
@@ -169,7 +148,7 @@ def results(root, fatherdna, childdna):
         bg="#182052",
         foreground="#EF6B48"
     )
-    title.place(relx=0.12, rely=0.105)
+    title.place(relx=0.12, rely=0.09)
     instruction = Label(
         root,
         font=(myFont, 15),
@@ -177,7 +156,7 @@ def results(root, fatherdna, childdna):
         bg="#182052",
         foreground="white"
     )
-    instruction.place(relx=0.12, rely=0.185)
+    instruction.place(relx=0.12, rely=0.17)
 
     resultTable = ttk.Treeview(root, columns=('Genetic Markers', 'Child', 'Alleged Father'), show='headings')
     resultTable.heading('Genetic Markers', text='Genetic Markers')
@@ -193,22 +172,68 @@ def results(root, fatherdna, childdna):
 
     if matching_percentage >= 99.9:
         resultdescription = f"The supposed father is very likely to be the biological father with {matching_percentage}% probability of paternity."
+        
     else:
         resultdescription = f"The supposed father is unlikely to be the biological father with {matching_percentage}% probability of paternity."
 
-    resultTable.place(relx=0.12, rely=0.24)
+    resultTable.place(relx=0.12, rely=0.225)
     results_label = tk.Label(root, text="Results: "+ resultdescription, font=('Helvetica', 14), bg="#182052", foreground="white")
-    results_label.place(relx=0.12, rely=0.70)
+    results_label.place(relx=0.12, rely=0.685)
 
     disclaimer_label = tk.Label(root, text="This program is for educational purposes to simulate a simple paternity probability algorithm. It should not be used for true biological assessments of  ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
-    disclaimer_label.place(relx=0.12, rely=0.76)   
+    disclaimer_label.place(relx=0.12, rely=0.74)   
     disclaimer1_label = tk.Label(root, text="paternity or biological affinity. Data used for testing publically available DNA sequences available DNA sequences or synthetically mutated DNA ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
-    disclaimer1_label.place(relx=0.12, rely=0.79)   
+    disclaimer1_label.place(relx=0.12, rely=0.77)   
     disclaimer2_label = tk.Label(root, text="sequences. ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
-    disclaimer2_label.place(relx=0.12, rely=0.82)   
+    disclaimer2_label.place(relx=0.12, rely=0.80)   
 
-    exportButton = tk.Button(root, text="Export", command=lambda: export_button_click(resultTable))
-    exportButton.place(relx=0.12, rely=0.87)
+    def export_to_txt(table, filename):
+        data = []
+
+        # Extract data from the table
+        for row_id in table.get_children():
+            data.append(table.item(row_id)['values'])
+
+        # Convert data to a DataFrame
+        df = pd.DataFrame(data, columns=['Genetic Markers', 'Child', 'Alleged Father'])
+
+        # Export DataFrame to a .txt file using tabulate
+        with open(filename, 'w') as file:
+            file.write('Paternity Test Simulator Results\n')
+            file.write(resultdescription)
+            file.write('\n\n')
+            file.write('Total Child Markers: ')
+            file.write((str(len(child_markers))))
+            file.write('\n')
+            file.write('Total Father Markers: ')
+            file.write(str(len(father_markers)))
+            file.write('\n')
+            file.write('Total Combined Markers: ')
+            file.write(str(len(set(child_markers) & set(father_markers))))
+            file.write('\n\n')
+
+            file.write(tabulate(df, headers='keys', tablefmt='pretty'))
+            file.write('\n\n')
+            file.write('This program is for educational purposes to simulate a simple paternity probability algorithm. It should not be used for true biological assessments of paternity or biological affinity. Data used for testing publically available DNA sequences or synthetically mutated DNA sequences.')
+    
+    def export_button_click(table):
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
+
+        if file_path:
+            export_to_txt(table, file_path)
+
+    exportButton = tk.Button(root, text="Export Results", command=lambda: export_button_click(resultTable), font=(myFont, 12))
+    exportButton.place(relx=0.27, rely=0.85)
+    returnButton = Button(
+        root,
+        font=(myFont, 12),
+        command=lambda: landingPage(root),
+        text="Take Another Test",
+        background="#494E73",
+
+        foreground="black"
+    )
+    returnButton.place(relx=0.12, rely=0.85)
 
 
 def dnaInput(root):
