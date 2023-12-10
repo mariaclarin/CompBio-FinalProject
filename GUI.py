@@ -1,34 +1,359 @@
-
-# Import module  
 from tkinter import *
-  
-# Create object  
-root = Tk() 
-  
-# Adjust size  
-root.geometry("400x400") 
-  
-# Add image file 
-bg = PhotoImage(file = "images/background1.png") 
+from tkinter import ttk, filedialog, messagebox
+import tkinter as tk
+import tkinter.font as font
+from PIL import Image, ImageTk
+from paternity_test import *
+import pandas as pd
+from tabulate import tabulate
 
-# Set the window dimensions based on the background image
-window_width = bg.width()
-window_height = bg.height()
-# Adjust size  
-root.geometry(f"{window_width}x{window_height}")
-root.resizable(False, False)
-  
-# Show image using label 
-label1 = Label( root, image = bg) 
-label1.place(x = 0, y = 0) 
-  
-# Create Frame 
-frame1 = Frame(root) 
-frame1.grid(row=2, column=0)
-  
-button2 = Button(frame1, text="Start")
-button2.grid(row=500, column=5)
-  
+def cleanPage(root):
+    """
+    Method to clean the window
+    """
+    for widget in root.winfo_children():  # To know the widgets used in that page
+        widget.destroy()  # To delete all the widgets with iteration
+        
+def landingPage(root):
+    cleanPage(root)
+    global myFont
+    myFont = font.Font(family="Helvetica")
+    # Add image file
+    global background, backgroundpic
+    backgroundpic = Image.open("images/background.png")
+    background = ImageTk.PhotoImage(backgroundpic)
 
-# Execute tkinter 
-root.mainloop()
+    # Show image using label
+    backgroundlabel = Label(root, image=background, background="#292F5C")
+    backgroundlabel.image = background
+    backgroundlabel.place(x=0, y=0)
+
+    title = Label(
+        root,
+        font=(myFont, 40),
+        text="Paternity Test",
+        bg="#494E73",
+        foreground="white"
+    )
+    title.place(relx=0.135, rely=0.25)
+    title1 = Label(
+         root,
+        font=(myFont, 40),
+        text="Simulator",
+        bg="#494E73",
+        foreground="white"
+    )
+    title1.place(relx=0.135, rely=0.32)
+
+    title2 = Label(
+        root,
+        font=(myFont, 14),
+        text="Developed by Arish, Ferdinand, and Maria",
+        bg="#494E73",
+        foreground="white"
+    )
+    title2.place(relx=0.135, rely=0.4)
+    title2 = Label(
+         root,
+        font=(myFont, 20),
+        text="___________",
+        bg="#494E73",
+        foreground="#EF6B48"
+    )
+    title2.place(relx=0.135, rely=0.43)
+    
+    disclaimer = Label(
+        root,
+        font=(myFont, 9),
+        text="This program is for educational purposes to simulate a simple",
+        foreground="white",
+        bg="#494E73",
+    )
+    disclaimer.place(relx=0.135, rely=0.51)
+    disclaimer1 = Label(
+        root,
+        font=(myFont, 9),
+        text="paternity probability algorithm. It should not be used for true",
+        foreground="white",
+        bg="#494E73",
+    )
+    disclaimer1.place(relx=0.135, rely=0.532)
+    disclaimer2 = Label(
+        root,
+        font=(myFont, 9),
+        text="biological assessments of paternity or biological affinity. Data used",
+        foreground="white",
+        bg="#494E73",
+    )
+    disclaimer2.place(relx=0.135, rely=0.554)
+    disclaimer3 = Label(
+        root,
+        font=(myFont, 9),
+        text="for testing publically available DNA sequences or synthetically",
+        foreground="white",
+        bg="#494E73",
+    )
+    disclaimer3.place(relx=0.135, rely=0.576)
+    disclaimer4 = Label(
+        root,
+        font=(myFont, 9),
+        text="mutated DNA sequences.",
+        foreground="white",
+        bg="#494E73",
+    )
+    disclaimer4.place(relx=0.135, rely=0.598)
+
+    
+    userButton = Button(
+        root,
+        font=(myFont, 15),
+        command=lambda: dnaInput(root),
+        text="  Start  ",
+        background="#494E73",
+        foreground="black",
+    )
+    userButton.place(relx=0.135, rely=0.65)
+
+
+
+def export_to_txt(table, filename):
+    data = []
+
+    # Extract data from the table
+    for row_id in table.get_children():
+        data.append(table.item(row_id)['values'])
+
+    # Convert data to a DataFrame
+    df = pd.DataFrame(data, columns=['Genetic Markers', 'Child', 'Alleged Father'])
+
+    # Export DataFrame to a .txt file using tabulate
+    with open(filename, 'w') as file:
+        file.write(tabulate(df, headers='keys', tablefmt='pretty'))
+
+def export_button_click(table):
+    file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
+
+    if file_path:
+        export_to_txt(table, file_path)
+
+
+def validator():
+    fatherdna = fatherinput.get("1.0", tk.END)
+    childdna = childinput.get("1.0", tk.END)
+    try:
+        results(root, fatherdna, childdna)
+    except Exception as e:
+        messagebox.showerror("Error", "Your DNA inputs are invalid or of invalid length. Please try again.")
+
+
+def results(root, fatherdna, childdna):
+    matching_percentage, childmarkerlen, fathermarkerlen, childfathermarkerlen, child_markers, father_markers = paternity_test(childdna, fatherdna, 13) 
+    
+    cleanPage(root)
+    global myFont
+    myFont = font.Font(family="Helvetica")
+    # Add image file
+    global background, backgroundpic
+    backgroundpic = Image.open("images/background1.png")
+    background = ImageTk.PhotoImage(backgroundpic)
+
+    # Show image using label
+    backgroundlabel = Label(root, image=background, background="#182052")
+    backgroundlabel.image = background
+    backgroundlabel.place(x=0, y=0)
+
+    title = Label(
+        root,
+        font=(myFont, 40),
+        text="Paternity Test Results",
+        bg="#182052",
+        foreground="#EF6B48"
+    )
+    title.place(relx=0.12, rely=0.105)
+    instruction = Label(
+        root,
+        font=(myFont, 15),
+        text="Here are the genetic markers found in the alleged father and child DNA to indicate paternity probability",
+        bg="#182052",
+        foreground="white"
+    )
+    instruction.place(relx=0.12, rely=0.185)
+
+    resultTable = ttk.Treeview(root, columns=('Genetic Markers', 'Child', 'Alleged Father'), show='headings')
+    resultTable.heading('Genetic Markers', text='Genetic Markers')
+    resultTable.heading('Child', text='Child')
+    resultTable.heading('Alleged Father', text='Alleged Father')
+    resultTable.column('Genetic Markers',  width=250, anchor='center')
+    resultTable.column('Child', width=250, anchor='center')
+    resultTable.column('Alleged Father', width=250, anchor='center')
+    resultTable['height'] = 15
+
+    for i in set(child_markers+father_markers):    
+        resultTable.insert('', 'end', values=(i,i,i))
+
+    if matching_percentage >= 99.9:
+        resultdescription = f"The supposed father is very likely to be the biological father with {matching_percentage}% probability of paternity."
+    else:
+        resultdescription = f"The supposed father is unlikely to be the biological father with {matching_percentage}% probability of paternity."
+
+    resultTable.place(relx=0.12, rely=0.24)
+    results_label = tk.Label(root, text="Results: "+ resultdescription, font=('Helvetica', 14), bg="#182052", foreground="white")
+    results_label.place(relx=0.12, rely=0.70)
+
+    disclaimer_label = tk.Label(root, text="This program is for educational purposes to simulate a simple paternity probability algorithm. It should not be used for true biological assessments of  ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
+    disclaimer_label.place(relx=0.12, rely=0.76)   
+    disclaimer1_label = tk.Label(root, text="paternity or biological affinity. Data used for testing publically available DNA sequences available DNA sequences or synthetically mutated DNA ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
+    disclaimer1_label.place(relx=0.12, rely=0.79)   
+    disclaimer2_label = tk.Label(root, text="sequences. ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
+    disclaimer2_label.place(relx=0.12, rely=0.82)   
+
+    exportButton = tk.Button(root, text="Export", command=lambda: export_button_click(resultTable))
+    exportButton.place(relx=0.12, rely=0.87)
+
+
+def dnaInput(root):
+    cleanPage(root)
+    global myFont
+    myFont = font.Font(family="Helvetica")
+    # Add image file
+    global background, backgroundpic
+    backgroundpic = Image.open("images/background1.png")
+    background = ImageTk.PhotoImage(backgroundpic)
+
+    # Show image using label
+    backgroundlabel = Label(root, image=background, background="#182052")
+    backgroundlabel.image = background
+    backgroundlabel.place(x=0, y=0)
+
+    title = Label(
+        root,
+        font=(myFont, 40),
+        text="DNA Input",
+        bg="#182052",
+        foreground="#EF6B48"
+    )
+    title.place(relx=0.137, rely=0.105)
+    instruction = Label(
+        root,
+        font=(myFont, 15),
+        text="Type the alleged father's DNA sequence or load a file (.txt)",
+        bg="#182052",
+        foreground="white"
+    )
+    instruction.place(relx=0.137, rely=0.175)
+
+    global fatherinput
+    fatherinput = tk.Text(root, wrap='word', width=100, height=10)
+    fatherinput.place(relx=0.137,rely=0.215 )
+
+
+    # Function to change the input field to the loaded file content
+    def loadfatherfile():
+        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        if file_path:
+            with open(file_path, "r") as file:
+                content = file.read()
+                fatherinput.delete("1.0", "end")
+                fatherinput.insert("1.0", content)
+
+    loadfatherbutton = Button(
+        root,
+        font=(myFont, 10),
+        command=loadfatherfile,
+        text="Load Father DNA File",
+        background="#494E73",
+        foreground="black",
+    )
+    loadfatherbutton.place(relx=0.137, rely=0.425)
+
+    title2 = Label(
+         root,
+        font=(myFont, 12),
+        text="_________",
+        bg="#182052",
+        foreground="#EF6B48"
+    )
+    title2.place(relx=0.137, rely=0.4765)
+
+    instruction1 = Label(
+        root,
+        font=(myFont, 15),
+        text="Type the child's DNA sequence or load a file (.txt)",
+        bg="#182052",
+        foreground="white"
+    )
+    instruction1.place(relx=0.137, rely=0.505)
+
+    global childinput
+    childinput = tk.Text(root, wrap='word', width=100, height=10)
+    childinput.place(relx=0.137,rely=0.545 )
+
+    def loadchildfile():
+        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        if file_path:
+            with open(file_path, "r") as file:
+                content = file.read()
+                childinput.delete("1.0", "end")
+                childinput.insert("1.0", content)
+
+    loadchildbutton = Button(
+        root,
+        font=(myFont, 10),
+        command=loadchildfile,
+        text="Load Child DNA File",
+        background="#494E73",
+        foreground="black",
+    )
+    loadchildbutton.place(relx=0.137, rely=0.755)
+
+    testButton = Button(
+        root,
+        font=(myFont, 15),
+        command=validator,
+        text="Start Paternity Test",
+        background="#494E73",
+        width=20,
+        foreground="black"
+    )
+    testButton.place(relx=0.24, rely=0.83)
+
+    returnButton = Button(
+        root,
+        font=(myFont, 15),
+        command=lambda: landingPage(root),
+        text="  Return  ",
+        background="#494E73",
+
+        foreground="black"
+    )
+    returnButton.place(relx=0.137, rely=0.83)
+
+
+def main():
+    width = 1000
+    height = 700
+
+    # Create tkinter root
+    global root
+    root = Tk()
+    root.config(bg="#2C602E")
+    root.title("Paternity Test Simulator")
+    global myFont
+    myFont = font.Font(family="Helvetica")
+
+    # Assign value of device screen size
+    setW = root.winfo_screenwidth()
+    setH = root.winfo_screenheight()
+
+    # Set the padding so it will position window center
+    padW = (setW//2)-(width//2)
+    padH = (setH//2)-(height//2)
+
+    # Set the window size and position
+    root.geometry(f"{width}x{height}+{padW}+{padH}")
+    root.resizable(False, False)
+
+    landingPage(root)
+    root.mainloop()
+
+main()
