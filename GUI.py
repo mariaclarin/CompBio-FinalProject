@@ -151,7 +151,7 @@ def results(root, fatherdna, childdna):
     title.place(relx=0.12, rely=0.09)
     instruction = Label(
         root,
-        font=(myFont, 15),
+        font=(myFont, 16),
         text="Here are the genetic markers found in the alleged father and child DNA to indicate paternity probability",
         bg="#182052",
         foreground="white"
@@ -167,18 +167,75 @@ def results(root, fatherdna, childdna):
     resultTable.column('Alleged Father', width=250, anchor='center')
     resultTable['height'] = 15
 
-    for i in set(child_markers+father_markers):    
-        resultTable.insert('', 'end', values=(i,i,i))
+    all_markers = set(child_markers + father_markers)
+    for marker in all_markers:
+        child_count = childdna.count(marker)
+        father_count = fatherdna.count(marker)
+        resultTable.insert('', 'end', values=(marker,child_count,father_count))
 
     if matching_percentage >= 99.9:
         resultdescription = f"The supposed father is very likely to be the biological father with {matching_percentage}% probability of paternity."
-        
+        resultstitle = "High likelihood of biological paternity."
+        resultcolor = 1
     else:
         resultdescription = f"The supposed father is unlikely to be the biological father with {matching_percentage}% probability of paternity."
+        resultstitle = "Unlikely of biological paternity."
+        resultcolor= 0
+    if resultcolor==1:
+        resultstitles = Label(
+            root,
+            font=(myFont, 20),
+            text=resultstitle,
+            bg="#182052",
+            foreground="#09B800"
+        )
+        resultstitles.place(relx=0.12, rely=0.21)
+    else:
+        resultstitles = Label(
+            root,
+            font=(myFont, 20),
+            text=resultstitle,
+            bg="#182052",
+            foreground="#FF0000"
+        )
+        resultstitles.place(relx=0.12, rely=0.21)
 
-    resultTable.place(relx=0.12, rely=0.225)
-    results_label = tk.Label(root, text="Results: "+ resultdescription, font=('Helvetica', 14), bg="#182052", foreground="white")
-    results_label.place(relx=0.12, rely=0.685)
+    resultstitles1 = Label(
+        root,
+        font=(myFont, 10),
+        text='No. of Child Markers: ',
+        bg="#182052",
+        foreground="#737BB6"
+    )
+    resultstitles1.place(relx=0.72, rely=0.21)
+    resultstitles2 = Label(
+        root,
+        font=(myFont, 10),
+        text=childmarkerlen,
+        bg="#182052",
+        foreground="#737BB6"
+    )
+    resultstitles2.place(relx=0.835, rely=0.21)
+    resultstitles3 = Label(
+        root,
+        font=(myFont, 10),
+        text='No. of Father Markers: ',
+        bg="#182052",
+        foreground="#737BB6"
+    )
+    resultstitles3.place(relx=0.72, rely=0.235)
+    resultstitles4 = Label(
+        root,
+        font=(myFont, 10),
+        text=fathermarkerlen,
+        bg="#182052",
+        foreground="#737BB6"
+    )
+    resultstitles4.place(relx=0.835, rely=0.235)
+
+    resultTable.place(relx=0.12, rely=0.27)
+    results_label = tk.Label(root, text= resultdescription, font=('Helvetica', 14), bg="#182052", foreground="white")
+    results_label.place(relx=0.12, rely=0.705)
 
     disclaimer_label = tk.Label(root, text="This program is for educational purposes to simulate a simple paternity probability algorithm. It should not be used for true biological assessments of  ", font=('Helvetica', 12), bg="#182052", foreground="#737BB6")
     disclaimer_label.place(relx=0.12, rely=0.74)   
@@ -200,6 +257,10 @@ def results(root, fatherdna, childdna):
         # Export DataFrame to a .txt file using tabulate
         with open(filename, 'w') as file:
             file.write('Paternity Test Simulator Results\n')
+            file.write('===================================================\n')
+            file.write(resultstitle)
+            file.write('\n')
+            file.write('===================================================\n')
             file.write(resultdescription)
             file.write('\n\n')
             file.write('Total Child Markers: ')
