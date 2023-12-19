@@ -21,6 +21,7 @@ def levenshtein_distance(s1, s2):
 def paternity_test(child_dna, father_dna):
     # Calculate the Levenshtein distance to align the sequences
     distance = levenshtein_distance(child_dna, father_dna)
+    print("Levenstein distance between child and father DNA:", distance)
 
     # Calculate the percentage similarity based on the length of the longer sequence
     max_length = max(len(child_dna), len(father_dna))

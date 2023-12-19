@@ -8,7 +8,11 @@ def paternity_test(child_dna, father_dna):
 
     print("Hamming distance between child and father DNA:", distance_child_father)
 
-    if distance_child_father < len(child_dna) / 1000:
+    percentage_similarity = 100 - ((distance_child_father / (len(child_dna))) * 100)
+
+    print(percentage_similarity)
+
+    if percentage_similarity > 99.9:
         print("The father is likely to be the biological parent.")
     else:
         print("The father is less likely to be the biological parent.")
