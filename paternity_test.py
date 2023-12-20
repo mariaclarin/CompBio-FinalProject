@@ -1,5 +1,16 @@
 # from prettytable import PrettyTable
 
+import re
+
+def is_valid_dna(sequence):
+    if not re.match("^[ATCG]*$", sequence):
+        return False
+    
+    if not sequence:
+        return False
+    
+    return True
+
 def find_genetic_markers(dna_sequence, marker_length):
     global markers
     markers = set()
@@ -18,44 +29,50 @@ def find_genetic_markers(dna_sequence, marker_length):
 
 def paternity_test(child_dna, father_dna, marker_length):
     global matching_percentage, childmarkerlen, fathermarkerlen, childfathermarkerlen, child_markers, father_markers
-    # Find genetic markers in the DNA sequences
-    child_markers = find_genetic_markers(child_dna, marker_length)
-    father_markers = find_genetic_markers(father_dna, marker_length)
+    if is_valid_dna(child_dna):
+        if is_valid_dna(father_dna):
+            # Find genetic markers in the DNA sequences
+            child_markers = find_genetic_markers(child_dna, marker_length)
+            father_markers = find_genetic_markers(father_dna, marker_length)
 
-    # # Create a table to display the results in terminal
-    # table = PrettyTable()
-    # table.field_names = ["Genetic Marker", "Child Count", "Father Count"]
+            # # Create a table to display the results in terminal
+            # table = PrettyTable()
+            # table.field_names = ["Genetic Marker", "Child Count", "Father Count"]
 
-    # # Populate the table with markers and counts
-    # added_markers = set()
-    # all_markers = set(child_markers + father_markers)
+            # # Populate the table with markers and counts
+            # added_markers = set()
+            # all_markers = set(child_markers + father_markers)
 
-    # for marker in all_markers:
-    #     child_count = child_dna.count(marker)
-    #     father_count = father_dna.count(marker)
-    #     table.add_row([marker, child_count, father_count])
+            # for marker in all_markers:
+            #     child_count = child_dna.count(marker)
+            #     father_count = father_dna.count(marker)
+            #     table.add_row([marker, child_count, father_count])
 
-    # print(table)
+            # print(table)
 
-    # Perform the paternity test
-    matching_percentage = len(set(child_markers) & set(father_markers)) / len(set(child_markers + father_markers)) * 100
-    childmarkerlen = len(set(child_markers))
-    fathermarkerlen = len(set(father_markers))
-    childfathermarkerlen = len(set(child_markers + father_markers))
+            # Perform the paternity test
+            matching_percentage = len(set(child_markers) & set(father_markers)) / len(set(child_markers + father_markers)) * 100
+            childmarkerlen = len(set(child_markers))
+            fathermarkerlen = len(set(father_markers))
+            childfathermarkerlen = len(set(child_markers + father_markers))
 
 
-    # print(len(set(child_markers) & set(father_markers)), len(set(child_markers + father_markers)))
+            # print(len(set(child_markers) & set(father_markers)), len(set(child_markers + father_markers)))
 
-    # # Display the results
-    # print(f"\nMatching Percentage: {matching_percentage:.2f}%")
+            # # Display the results
+            # print(f"\nMatching Percentage: {matching_percentage:.2f}%")
 
-    # # Determine the likelihood of paternity
-    # if matching_percentage >= 99.9:
-    #     print("The supposed father is very likely to be the biological father.")
-    # else:
-    #     print("The supposed father is unlikely to be the biological father.")
+            # # Determine the likelihood of paternity
+            # if matching_percentage >= 99.9:
+            #     print("The supposed father is very likely to be the biological father.")
+            # else:
+            #     print("The supposed father is unlikely to be the biological father.")
 
-    return matching_percentage, childmarkerlen, fathermarkerlen, childfathermarkerlen, child_markers, father_markers
+            return matching_percentage, childmarkerlen, fathermarkerlen, childfathermarkerlen, child_markers, father_markers
+        else:
+            return
+    else:
+        return
 
 
 # # Get input DNA sequences from the user
